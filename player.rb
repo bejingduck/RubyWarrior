@@ -3,21 +3,27 @@ class Player
   def initialize
     @currentDirection = :forward
     @backDirection = :backward
-    @rested = false
-    #@in_battle? = false
+    @rested = true
+    @in_battle = false
     @previousHealth = 0
     @enemies = ["Thick Sludge", "Archer"]
   end
 
   def intelegent_walk(warrior)
+    
     if taking_damage?(warrior.health) 
     then
-      print "backdirection is ", @backDirection, "\n"
-      warrior.walk!(:backward) #if we are taking damage then walk to opposite direction
+      if @in_battle then 
+        warrior.walk!(:backward) #if we are taking damage then walk to opposite direction
+      else
+        warrior.walk!(:forward)        
+      end
     else 
         if warrior.health == 20  #if we are NOT taking damage then either walk or rest
         then 
           @rested = true
+          @in_battle = false
+          print "NOT in battle anymore. @in_battle: ", @in_battle, "\n"
           warrior.walk!
         else
           warrior.rest!
@@ -71,11 +77,11 @@ class Player
     case String(warrior.feel)
       when "wall"        
         turnAround(warrior)
-      when -> (n) {@enemies.include? n} 
-        #@in_battle? = true
+      when -> (n) {@enemies.include? n}         
         warrior.attack!
+        @in_battle = true
+        print "TO THE ARMS!!!. @in_battle: ", @in_battle, "\n"
       when "nothing"
-        #@in_battle? = false
         intelegent_walk(warrior)
       else
         print "what is ", warrior.feel,"...\n"
