@@ -6,7 +6,7 @@ class Player
     @rested = true
     @in_battle = false
     @previousHealth = 0
-    @enemies = ["Thick Sludge", "Archer"]
+    @enemies = ["Thick Sludge", "Archer", "Wizard"]
   end
 
   def intelegent_walk(warrior)
@@ -41,22 +41,16 @@ class Player
       else return false
     end
   end
+
+  def looking_into_enemy? (warrior)
+
+    looking_at = String(warrior.look[1])
+    
+    print looking_at, " \e[31m----> ", @enemies.include?(looking_at), "\e[0m\n"
+    
+    @enemies.include?(looking_at)
+  end
  
-
-#def saveOrKill(warrior)
-#
-#   if (warrior.feel(@direction).captive?)
-#    warrior.rescue!(@direction)
-#    elsif (warrior.feel(@direction).wall?)
-#      @direction = :forward
-#      @backDirection = :backward
-#    warrior.walk!(@direction)
-#   else
-#    warrior.attack!(@direction)
-#    end
-#  end
-
-  
   def turnAround(warrior)
 
     @currentDirection, @backDirection = @backDirection, @currentDirection
@@ -65,24 +59,36 @@ class Player
   end
 
   def displayDebugInfo(warrior)
+    @infront 
+    
     print "1. direction = ",@currentDirection,"...\n"
     print "2. Health    = ",warrior.health,"...\n"
     print "3. In front of    =", warrior.feel,"...\n"
+    
+    for i in 1..3
+        print "4.",i," Looking into  =", warrior.look[i] , "....\n"
+    end
  end
 
   def play_turn(warrior)
 
     displayDebugInfo(warrior)
 
-    case String(warrior.feel)
+      
+    case String(warrior.feel) #what do we have infront 
       when "wall"        
         turnAround(warrior)
       when -> (n) {@enemies.include? n}         
         warrior.attack!
         @in_battle = true
         print "TO THE ARMS!!!. @in_battle: ", @in_battle, "\n"
+      when "Captive"
+        warrior.rescue!
       when "nothing"
-        intelegent_walk(warrior)
+        if looking_into_enemy?(warrior) 
+          then warrior.shoot! 
+          else intelegent_walk(warrior) 
+        end
       else
         print "what is ", warrior.feel,"...\n"
     end  
