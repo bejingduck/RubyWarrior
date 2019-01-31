@@ -1,17 +1,19 @@
 class Player
   
   def initialize
-    @direction = :forward
+    @currentDirection = :forward
     @backDirection = :backward
     @rested = false
+    @in_battle? = false
     @previousHealth = 0
+    @enemies = ["Thick Sludge", "Archer"]
   end
 
-  def warriorQualityRest(warrior)
-    if ifWarriorTakingDamage(warrior.health)
+  def rest(warrior)
+    if taking_damage?(warrior.health)
       then
       if @rested
-      warrior.walk!(@direction)
+        warrior.walk!(@currentDirection)
       else
         warrior.walk!(@backDirection)
         @rested = true
@@ -20,64 +22,59 @@ class Player
     end
   end
 
-  def ifWarriorTakingDamage(currentHealth)
+  def taking_damage?(currentHealth)
     if currentHealth <  @previousHealth
-    then return true
-    else return false
+      then return true
+      else return false
     end
   end
 
-  def saveOrKill(warrior)
+  def 
 
-    if (warrior.feel(@direction).captive?)
-    warrior.rescue!(@direction)
-    elsif (warrior.feel(@direction).wall?)
-      @direction = :forward
-      @backDirection = :backward
-    warrior.walk!(@direction)
-    else
-    warrior.attack!(@direction)
-    end
-  end
+#def saveOrKill(warrior)
+#
+#   if (warrior.feel(@direction).captive?)
+#    warrior.rescue!(@direction)
+#    elsif (warrior.feel(@direction).wall?)
+#      @direction = :forward
+#      @backDirection = :backward
+#    warrior.walk!(@direction)
+#   else
+#    warrior.attack!(@direction)
+#    end
+#  end
 
+  
   def turnAround(warrior)
 
-    print "WE ARE TURNING! - change!!"
+    @currentDirection, @backDirection = @backDirection, @currentDirection
+    print "we are turning\n"
     warrior.pivot!
-    @direction = :backward
-    @backDirection = :forward
-
   end
 
   def displayDebugInfo(warrior)
-    print "+++++++++++ direction = ",@direction,"++++++++++++++++++\n"
-    print "+++++++++++ Health    = ",warrior.health,"++++++++++++++\n"
-    print "+++++++++++ In front of    = !!!!!!!", warrior.feel(@direction),"!!!!!!!!!++++++++++++++\n"
-    print "+++ apparently this is a change\n"
-    print "this is just to test github"
-    print "this is just to test github2"
-  end
+    print "1. direction = ",@currentDirection,"...\n"
+    print "2. Health    = ",warrior.health,"...\n"
+    print "3. In front of    =", warrior.feel,"...\n"
+ end
 
   def play_turn(warrior)
 
     displayDebugInfo(warrior)
 
-    if warrior.feel(@direction).wall?
-      
-      then
+    case String(warrior.feel)
+      when "wall"        
         turnAround(warrior)
+      when -> (n) {@enemies.include? n} 
+        @in_battle? = true
+        warrior.attack!
+      when "nothing"
+        @in_battle? = false
+        rest(warrior)
+        warrior.walk!
       else
-
-        if warrior.feel(@direction).empty? then
-          if warrior.health < 20 then
-            warriorQualityRest(warrior)
-          else
-            warrior.walk!(@direction)
-          end
-        else
-          saveOrKill(warrior)
-      end
-      @previousHealth = warrior.health
-    end
+        print "what is ", warrior.feel,"...\n"
+    end  
+        
   end
 end
