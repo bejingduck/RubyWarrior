@@ -4,32 +4,38 @@ class Player
     @currentDirection = :forward
     @backDirection = :backward
     @rested = false
-    @in_battle? = false
+    #@in_battle? = false
     @previousHealth = 0
     @enemies = ["Thick Sludge", "Archer"]
   end
 
-  def rest(warrior)
-    if taking_damage?(warrior.health)
-      then
-      if @rested
-        warrior.walk!(@currentDirection)
-      else
-        warrior.walk!(@backDirection)
-        @rested = true
-      end
-    else warrior.rest!
+  def intelegent_walk(warrior)
+    if taking_damage?(warrior.health) 
+    then
+      print "backdirection is ", @backDirection, "\n"
+      warrior.walk!(:backward) #if we are taking damage then walk to opposite direction
+    else 
+        if warrior.health == 20  #if we are NOT taking damage then either walk or rest
+        then 
+          @rested = true
+          warrior.walk!
+        else
+          warrior.rest!
+        end
     end
   end
 
   def taking_damage?(currentHealth)
+    print "currentHealth is ",currentHealth, "\n"
+    print "previousHealth is ", @previousHealth, "\n"
     if currentHealth <  @previousHealth
-      then return true
+      then 
+        print "we are under attack! \n"
+        return true
       else return false
     end
   end
-
-  def 
+ 
 
 #def saveOrKill(warrior)
 #
@@ -66,15 +72,18 @@ class Player
       when "wall"        
         turnAround(warrior)
       when -> (n) {@enemies.include? n} 
-        @in_battle? = true
+        #@in_battle? = true
         warrior.attack!
       when "nothing"
-        @in_battle? = false
-        rest(warrior)
-        warrior.walk!
+        #@in_battle? = false
+        intelegent_walk(warrior)
       else
         print "what is ", warrior.feel,"...\n"
     end  
-        
+     
+    # closing variables to be handed over to next cycle
+
+    @previousHealth = warrior.health
+
   end
 end
